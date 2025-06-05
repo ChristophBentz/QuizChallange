@@ -1,0 +1,36 @@
+# Systemd Service Datei für Quiz-App
+# Speichern unter: /etc/systemd/system/quiz-app.service
+
+[Unit]
+Description=Gunicorn instance to serve Quiz-App
+After=network.target
+
+[Service]
+Type=notify
+User=www-data
+Group=www-data
+RuntimeDirectory=quiz-app
+WorkingDirectory=/var/www/quiz-app
+Environment="PATH=/var/www/quiz-app/venv/bin"
+Environment="FLASK_ENV=production"
+Environment="SECRET_KEY=your-production-secret-key"
+ExecStart=/var/www/quiz-app/venv/bin/gunicorn --config gunicorn.conf.py wsgi:application
+ExecReload=/bin/kill -s HUP $MAINPID
+KillMode=mixed
+TimeoutStopSec=5
+PrivateTmp=true
+Restart=always
+RestartSec=10
+
+# Security settings
+NoNewPrivileges=yes
+ProtectSystem=strict
+ProtectHome=yes
+ReadWritePaths=/var/www/quiz-app
+ReadWritePaths=/var/log/gunicorn
+ProtectKernelTunables=yes
+ProtectKernelModules=yes
+ProtectControlGroups=yes
+
+[Install]
+WantedBy=multi-user.target 

@@ -1,0 +1,22 @@
+User-agent: *
+Allow: /
+Allow: /static/
+
+# Sitemaps (optional - können später hinzugefügt werden)
+# Sitemap: https://ihre-domain.de/sitemap.xml
+
+# Crawl-delay für höfliches Crawling
+Crawl-delay: 1
+
+# Spezifische Anweisungen für verschiedene Bots
+User-agent: Googlebot
+Allow: /
+
+User-agent: Bingbot
+Allow: /
+
+# Blockiere Zugriff auf private/admin Bereiche (falls später hinzugefügt)
+Disallow: /admin/
+Disallow: /private/
+Disallow: /*.db$
+Disallow: /*.log$ 

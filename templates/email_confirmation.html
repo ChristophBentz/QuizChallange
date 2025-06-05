@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>E-Mail bestätigen</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            line-height: 1.6;
+            margin: 0;
+            padding: 20px;
+            background-color: #f4f4f4;
+        }
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+        }
+        .header {
+            text-align: center;
+            color: #333;
+            border-bottom: 3px solid #007bff;
+            padding-bottom: 20px;
+            margin-bottom: 20px;
+        }
+        .button {
+            display: inline-block;
+            padding: 12px 30px;
+            background-color: #007bff;
+            color: white;
+            text-decoration: none;
+            border-radius: 25px;
+            margin: 20px 0;
+            font-weight: bold;
+        }
+        .footer {
+            margin-top: 30px;
+            padding-top: 20px;
+            border-top: 1px solid #eee;
+            font-size: 12px;
+            color: #666;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🎉 Willkommen beim Login System!</h1>
+        </div>
+        
+        <h2>E-Mail-Adresse bestätigen</h2>
+        
+        <p>Vielen Dank für Ihre Registrierung! Um Ihr Konto zu aktivieren, müssen Sie Ihre E-Mail-Adresse bestätigen.</p>
+        
+        <p><strong>Klicken Sie auf den folgenden Button, um Ihre E-Mail-Adresse zu bestätigen:</strong></p>
+        
+        <div style="text-align: center;">
+            <a href="{{ confirmation_url }}" class="button">
+                ✅ E-Mail bestätigen
+            </a>
+        </div>
+        
+        <p><strong>Oder kopieren Sie diesen Link in Ihren Browser:</strong></p>
+        <p style="word-break: break-all; background: #f8f9fa; padding: 10px; border-radius: 5px;">
+            {{ confirmation_url }}
+        </p>
+        
+        <div style="background: #fff3cd; border: 1px solid #ffeaa7; padding: 15px; border-radius: 5px; margin: 20px 0;">
+            <strong>⚠️ Wichtiger Hinweis:</strong>
+            <ul>
+                <li>Dieser Link ist nur <strong>1 Stunde</strong> gültig</li>
+                <li>Falls Sie sich nicht registriert haben, können Sie diese E-Mail ignorieren</li>
+                <li>Nach der Bestätigung können Sie sich mit Ihren Zugangsdaten anmelden</li>
+            </ul>
+        </div>
+        
+        <div class="footer">
+            <p>Diese E-Mail wurde automatisch generiert. Bitte antworten Sie nicht auf diese E-Mail.</p>
+            <p><strong>Login System</strong> - Ihr sicheres Authentifizierungssystem</p>
+        </div>
+    </div>
+</body>
+</html> 

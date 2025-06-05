@@ -1,0 +1,105 @@
+{% extends "base.html" %}
+
+{% block title %}Willkommen - Login System{% endblock %}
+
+{% block content %}
+<!-- Flash Messages -->
+{% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+        <div style="position: fixed; top: 20px; right: 20px; z-index: 9999;">
+            {% for category, message in messages %}
+                <div class="alert-modern alert-{{ 'error' if category == 'error' else ('info' if category == 'info' else 'success') }}">
+                    {{ message }}
+                </div>
+            {% endfor %}
+        </div>
+    {% endif %}
+{% endwith %}
+
+<div class="modern-split-layout">
+    <!-- Left Side - 3D Cube Animation -->
+    <div class="split-left">
+        <div class="cube-container">
+            <div class="cube">
+                <div class="cube-face front"></div>
+                <div class="cube-face back"></div>
+                <div class="cube-face right"></div>
+                <div class="cube-face left"></div>
+                <div class="cube-face top"></div>
+                <div class="cube-face bottom"></div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Right Side - Welcome Content -->
+    <div class="split-right">
+        <div class="form-container">
+            <div style="text-align: center; margin-bottom: 2rem;">
+                <h4 style="color: #6b7280; font-weight: 600; margin-bottom: 0;">QuizChallange</h4>
+            </div>
+            
+            <h1 class="form-title">Willkommen</h1>
+            <p class="form-subtitle">Ein sicheres und benutzerfreundliches System für die Benutzerauthentifizierung.</p>
+            
+            <div style="display: flex; gap: 1rem; margin-bottom: 2rem;">
+                <a href="{{ url_for('login') }}" class="btn-primary-modern" style="flex: 1; text-decoration: none; text-align: center;">
+                    Anmelden
+                </a>
+                <a href="{{ url_for('register') }}" style="flex: 1; padding: 0.875rem 1.5rem; background: transparent; color: var(--primary-blue); border: 2px solid var(--primary-blue); border-radius: 8px; font-weight: 600; font-size: 1rem; cursor: pointer; transition: all 0.2s ease; text-decoration: none; text-align: center; display: block;">
+                    Registrieren
+                </a>
+            </div>
+            
+            <div style="background: #f8fafc; border-radius: 12px; padding: 1.5rem; border: 1px solid #e5e7eb;">
+                <h5 style="margin-bottom: 1rem; color: var(--text-dark); font-size: 1.125rem;">Features</h5>
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+                    <div>
+                        <div style="display: flex; align-items: center; margin-bottom: 0.75rem;">
+                            <div style="width: 8px; height: 8px; background: #10b981; border-radius: 50%; margin-right: 0.5rem;"></div>
+                            <span style="font-size: 0.875rem; color: var(--text-dark);">Sichere Verschlüsselung</span>
+                        </div>
+                        <div style="display: flex; align-items: center; margin-bottom: 0.75rem;">
+                            <div style="width: 8px; height: 8px; background: #10b981; border-radius: 50%; margin-right: 0.5rem;"></div>
+                            <span style="font-size: 0.875rem; color: var(--text-dark);">E-Mail-Bestätigung</span>
+                        </div>
+                    </div>
+                    <div>
+                        <div style="display: flex; align-items: center; margin-bottom: 0.75rem;">
+                            <div style="width: 8px; height: 8px; background: #10b981; border-radius: 50%; margin-right: 0.5rem;"></div>
+                            <span style="font-size: 0.875rem; color: var(--text-dark);">SQLite Datenbank</span>
+                        </div>
+                        <div style="display: flex; align-items: center; margin-bottom: 0.75rem;">
+                            <div style="width: 8px; height: 8px; background: #10b981; border-radius: 50%; margin-right: 0.5rem;"></div>
+                            <span style="font-size: 0.875rem; color: var(--text-dark);">Responsive Design</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+@media (max-width: 768px) {
+    .modern-split-layout {
+        flex-direction: column;
+    }
+    
+    .split-left {
+        min-height: 40vh;
+    }
+    
+    .split-right {
+        min-height: 60vh;
+    }
+    
+    .form-title {
+        font-size: 2rem;
+    }
+    
+    div[style*="grid-template-columns"] {
+        grid-template-columns: 1fr !important;
+    }
+}
+</style>
+{% endblock %} 

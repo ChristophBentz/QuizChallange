@@ -1,0 +1,535 @@
+{% extends "base.html" %}
+
+{% block title %}Mathe-Quiz - Quiz Challenge{% endblock %}
+
+{% block content %}
+<!-- Flash Messages -->
+{% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+        <div class="flash-messages">
+            {% for category, message in messages %}
+                <div class="alert-modern alert-{{ 'error' if category == 'error' else ('info' if category == 'info' else 'success') }}">
+                    {{ message }}
+                </div>
+            {% endfor %}
+        </div>
+    {% endif %}
+{% endwith %}
+
+<!-- Fullscreen Quiz Layout -->
+<div class="fullscreen-quiz-container">
+    <!-- Header with Quiz Info -->
+    <div class="quiz-header">
+        <div class="header-left">
+            <div class="quiz-logo">
+                <i class="fas fa-calculator"></i>
+            </div>
+            <div class="quiz-title-section">
+                <h1 class="quiz-title">🧮 Mathe-Quiz</h1>
+                {% if difficulty_name %}
+                <span class="difficulty-badge difficulty-{{ difficulty }}">
+                    {% if difficulty == 'easy' %}
+                        <i class="fas fa-seedling me-2"></i>{{ difficulty_name }}
+                    {% elif difficulty == 'medium' %}
+                        <i class="fas fa-fire me-2"></i>{{ difficulty_name }}
+                    {% elif difficulty == 'hard' %}
+                        <i class="fas fa-skull me-2"></i>{{ difficulty_name }}
+                    {% else %}
+                        <i class="fas fa-random me-2"></i>{{ difficulty_name }}
+                    {% endif %}
+                </span>
+                {% endif %}
+            </div>
+        </div>
+        <div class="header-right">
+            <div class="quiz-progress">
+                <span class="progress-text">5 Aufgaben</span>
+                <div class="progress-bar">
+                    <div class="progress-fill"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+            
+    <!-- Main Quiz Content -->
+    <div class="quiz-main-content">
+        <form method="POST" action="{{ url_for('math_quiz_submit') }}" class="fullscreen-quiz-form">
+            <!-- Questions Grid -->
+            <div class="questions-grid">
+                {% for question in questions %}
+                {% set i = loop.index0 %}
+                <div class="question-card" data-question="{{ i + 1 }}">
+                    <div class="question-header">
+                        <div class="question-number">
+                            <span class="number">{{ i + 1 }}</span>
+                            <span class="total">/5</span>
+                        </div>
+                        {% if question.difficulty %}
+                        <span class="question-difficulty-tag difficulty-{{ question.difficulty }}">
+                            {{ question.difficulty|title }}
+                        </span>
+                        {% endif %}
+                    </div>
+                    
+                    <div class="question-content">
+                        <div class="question-display">
+                            {{ question.question }} = ?
+                        </div>
+                        
+                        <div class="answer-input-container">
+                            <input 
+                                type="number" 
+                                name="answer_{{ i }}" 
+                                class="answer-input"
+                                required
+                                placeholder="Antwort"
+                                autocomplete="off"
+                            >
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+            
+            <!-- Action Buttons -->
+            <div class="quiz-actions">
+                <a href="{{ url_for('math_quiz') }}" class="btn btn-secondary">
+                    <i class="fas fa-arrow-left me-2"></i>Zurück zur Auswahl
+                </a>
+                <a href="{{ url_for('index') }}" class="btn btn-outline">
+                    <i class="fas fa-home me-2"></i>Dashboard
+                </a>
+                <button type="submit" class="btn btn-primary">
+                    <i class="fas fa-check me-2"></i>Quiz auswerten
+                </button>
+            </div>
+        </form>
+    </div>
+    
+    <!-- Background Decoration -->
+    <div class="quiz-background">
+        <div class="floating-element element-1">+</div>
+        <div class="floating-element element-2">−</div>
+        <div class="floating-element element-3">×</div>
+        <div class="floating-element element-4">÷</div>
+        <div class="floating-element element-5">=</div>
+        <div class="floating-element element-6">%</div>
+        <div class="floating-element element-7">√</div>
+        <div class="floating-element element-8">²</div>
+    </div>
+</div>
+
+<style>
+/* Fullscreen Quiz Layout */
+.fullscreen-quiz-container {
+    min-height: 100vh;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    display: flex;
+    flex-direction: column;
+    position: relative;
+    overflow: hidden;
+    will-change: scroll-position;
+}
+
+.flash-messages {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    z-index: 9999;
+}
+
+/* Quiz Header */
+.quiz-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 2rem 3rem;
+    background: rgba(255, 255, 255, 0.15);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.header-left {
+    display: flex;
+    align-items: center;
+    gap: 1.5rem;
+}
+
+.quiz-logo {
+    width: 60px;
+    height: 60px;
+    background: rgba(255, 255, 255, 0.2);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-size: 1.5rem;
+}
+
+.quiz-title-section {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.quiz-title {
+    color: white;
+    font-size: 2rem;
+    font-weight: 700;
+    margin: 0;
+    text-shadow: 0 2px 4px rgba(0,0,0,0.3);
+}
+
+.quiz-progress {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    color: white;
+}
+
+.progress-text {
+    font-weight: 600;
+    text-shadow: 0 1px 2px rgba(0,0,0,0.3);
+}
+
+.progress-bar {
+    width: 200px;
+    height: 8px;
+    background: rgba(255, 255, 255, 0.3);
+    border-radius: 4px;
+    overflow: hidden;
+}
+
+.progress-fill {
+    width: 100%;
+    height: 100%;
+    background: white;
+    border-radius: 4px;
+    animation: fillProgress 0.5s ease-out;
+}
+
+@keyframes fillProgress {
+    from { width: 0%; }
+    to { width: 100%; }
+}
+
+/* Main Content */
+.quiz-main-content {
+    flex: 1;
+    padding: 3rem;
+    display: flex;
+    flex-direction: column;
+    position: relative;
+    z-index: 2;
+}
+
+.fullscreen-quiz-form {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 3rem;
+}
+
+/* Questions Grid */
+.questions-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+    gap: 2rem;
+    flex: 1;
+}
+
+.question-card {
+    background: rgba(255, 255, 255, 0.95);
+    border-radius: 20px;
+    padding: 2rem;
+    box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+    position: relative;
+    will-change: transform;
+}
+
+.question-card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+}
+
+.question-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 2rem;
+}
+
+.question-number {
+    display: flex;
+    align-items: center;
+    gap: 0.25rem;
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: var(--primary-blue);
+}
+
+.question-number .number {
+    font-size: 2rem;
+}
+
+.question-number .total {
+    font-size: 1.25rem;
+    color: #6b7280;
+}
+
+.question-content {
+    text-align: center;
+}
+
+.question-display {
+    font-size: 2.5rem;
+    font-weight: 700;
+    color: var(--text-dark);
+    margin-bottom: 2rem;
+    padding: 1.5rem;
+    background: #f8fafc;
+    border-radius: 12px;
+    border: 2px solid #e5e7eb;
+    text-shadow: 0 1px 2px rgba(0,0,0,0.1);
+}
+
+.answer-input-container {
+    margin-top: 1.5rem;
+}
+
+.answer-input {
+    width: 100%;
+    padding: 1.25rem 1.5rem;
+    border: 3px solid #e5e7eb;
+    border-radius: 12px;
+    font-size: 1.5rem;
+    font-weight: 600;
+    text-align: center;
+    color: var(--text-dark);
+    background: white;
+    transition: border-color 0.2s ease, box-shadow 0.2s ease;
+    outline: none;
+    will-change: border-color, box-shadow;
+}
+
+.answer-input:focus {
+    border-color: var(--primary-blue);
+    box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.15);
+}
+
+.answer-input:valid {
+    border-color: #22c55e;
+}
+
+/* Difficulty Badges */
+.difficulty-badge {
+    display: inline-block;
+    padding: 0.5rem 1rem;
+    border-radius: 20px;
+    font-size: 0.875rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.difficulty-easy {
+    background: linear-gradient(135deg, #22c55e 0%, #16a34a 100%);
+    color: white;
+}
+
+.difficulty-medium {
+    background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+    color: white;
+}
+
+.difficulty-hard {
+    background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+    color: white;
+}
+
+.difficulty-mixed {
+    background: linear-gradient(135deg, var(--primary-blue) 0%, #3730a3 100%);
+    color: white;
+}
+
+.question-difficulty-tag {
+    font-size: 0.75rem;
+    padding: 0.375rem 0.75rem;
+    border-radius: 12px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    border: 2px solid white;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+}
+
+/* Action Buttons */
+.quiz-actions {
+    display: flex;
+    justify-content: center;
+    gap: 1.5rem;
+    padding: 2rem;
+    background: rgba(255, 255, 255, 0.15);
+    border-radius: 20px;
+}
+
+.btn {
+    padding: 1rem 2rem;
+    border-radius: 12px;
+    font-weight: 600;
+    font-size: 1rem;
+    text-decoration: none;
+    border: none;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.btn-primary {
+    background: #10b981;
+    color: white;
+    box-shadow: 0 3px 10px rgba(16, 185, 129, 0.3);
+}
+
+.btn-primary:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 5px 15px rgba(16, 185, 129, 0.4);
+}
+
+.btn-secondary {
+    background: rgba(107, 114, 128, 0.9);
+    color: white;
+}
+
+.btn-secondary:hover {
+    background: rgba(107, 114, 128, 1);
+    transform: translateY(-1px);
+}
+
+.btn-outline {
+    background: transparent;
+    color: white;
+    border: 2px solid rgba(255, 255, 255, 0.5);
+}
+
+.btn-outline:hover {
+    background: rgba(255, 255, 255, 0.15);
+    border-color: rgba(255, 255, 255, 0.8);
+}
+
+/* Background Animation */
+.quiz-background {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    z-index: 1;
+}
+
+.floating-element {
+    position: absolute;
+    font-size: 2.5rem;
+    font-weight: 300;
+    color: rgba(255, 255, 255, 0.08);
+    animation: float 12s ease-in-out infinite;
+    will-change: transform;
+}
+
+.element-1 { top: 10%; left: 10%; animation-delay: 0s; }
+.element-2 { top: 20%; right: 15%; animation-delay: 1.5s; }
+.element-3 { top: 50%; left: 5%; animation-delay: 3s; }
+.element-4 { bottom: 30%; right: 10%; animation-delay: 4.5s; }
+.element-5 { bottom: 10%; left: 20%; animation-delay: 6s; }
+.element-6 { top: 70%; right: 25%; animation-delay: 7.5s; }
+.element-7 { top: 30%; left: 85%; animation-delay: 9s; }
+.element-8 { bottom: 60%; left: 75%; animation-delay: 10.5s; }
+
+@keyframes float {
+    0%, 100% { transform: translate3d(0, 0, 0) rotate(0deg); opacity: 0.08; }
+    25% { transform: translate3d(0, -12px, 0) rotate(90deg); opacity: 0.12; }
+    50% { transform: translate3d(0, 6px, 0) rotate(180deg); opacity: 0.1; }
+    75% { transform: translate3d(0, -8px, 0) rotate(270deg); opacity: 0.15; }
+}
+
+/* Responsive Design */
+@media (max-width: 1200px) {
+    .questions-grid {
+        grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+        gap: 1.5rem;
+    }
+}
+
+@media (max-width: 768px) {
+    .quiz-header {
+        padding: 1.5rem;
+        flex-direction: column;
+        gap: 1rem;
+    }
+    
+    .quiz-main-content {
+        padding: 1.5rem;
+    }
+    
+    .questions-grid {
+        grid-template-columns: 1fr;
+        gap: 1.5rem;
+    }
+    
+    .question-display {
+        font-size: 2rem;
+        padding: 1rem;
+    }
+    
+    .answer-input {
+        font-size: 1.25rem;
+        padding: 1rem;
+    }
+    
+    .quiz-actions {
+        flex-direction: column;
+        padding: 1.5rem;
+    }
+    
+    .btn {
+        justify-content: center;
+    }
+    
+    .quiz-title {
+        font-size: 1.5rem;
+        text-align: center;
+    }
+    
+    .progress-bar {
+        width: 150px;
+    }
+}
+
+@media (max-width: 480px) {
+    .quiz-header {
+        padding: 1rem;
+    }
+    
+    .quiz-main-content {
+        padding: 1rem;
+    }
+    
+    .question-card {
+        padding: 1.5rem;
+    }
+    
+    .question-display {
+        font-size: 1.75rem;
+    }
+    
+    .floating-element {
+        font-size: 2rem;
+    }
+}
+</style>
+{% endblock %} 

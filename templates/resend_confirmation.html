@@ -1,0 +1,92 @@
+{% extends "base.html" %}
+
+{% block title %}Bestätigung erneut senden - Login System{% endblock %}
+
+{% block content %}
+<!-- Flash Messages -->
+{% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+        <div style="position: fixed; top: 20px; right: 20px; z-index: 9999;">
+            {% for category, message in messages %}
+                <div class="alert-modern alert-{{ 'error' if category == 'error' else ('info' if category == 'info' else 'success') }}">
+                    {{ message }}
+                </div>
+            {% endfor %}
+        </div>
+    {% endif %}
+{% endwith %}
+
+<div class="modern-split-layout">
+    <!-- Left Side - 3D Cube Animation -->
+    <div class="split-left">
+        <div class="cube-container">
+            <div class="cube">
+                <div class="cube-face front"></div>
+                <div class="cube-face back"></div>
+                <div class="cube-face right"></div>
+                <div class="cube-face left"></div>
+                <div class="cube-face top"></div>
+                <div class="cube-face bottom"></div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Right Side - Resend Form -->
+    <div class="split-right">
+        <div class="form-container">
+            <div style="text-align: center; margin-bottom: 2rem;">
+                <h4 style="color: #6b7280; font-weight: 600; margin-bottom: 0;">QuizChallange</h4>
+            </div>
+            
+            <h1 class="form-title">Bestätigungs-E-Mail</h1>
+            <p class="form-subtitle">Geben Sie Ihre E-Mail-Adresse ein, um eine neue Bestätigungs-E-Mail zu erhalten.</p>
+            
+            <form method="POST" action="{{ url_for('resend_confirmation_post') }}">
+                <div class="form-group">
+                    <label for="email" class="form-label">E-Mail-Adresse</label>
+                    <input type="email" class="form-input" id="email" name="email" required
+                           placeholder="ihre@email.com">
+                </div>
+                
+                <button type="submit" class="btn-primary-modern">
+                    Bestätigung erneut senden
+                </button>
+            </form>
+            
+            <div class="form-links">
+                <p style="margin-bottom: 0.5rem; color: #6b7280;">Bereits bestätigt?</p>
+                <a href="{{ url_for('login') }}">Hier anmelden</a>
+            </div>
+            
+            <div style="margin-top: 2rem; padding: 1rem; background: #f8fafc; border-radius: 8px; border: 1px solid #e5e7eb;">
+                <p style="font-size: 0.875rem; color: #6b7280; margin-bottom: 0.5rem;"><strong>Hinweise:</strong></p>
+                <ul style="font-size: 0.875rem; color: #6b7280; margin: 0; padding-left: 1.25rem;">
+                    <li>Überprüfen Sie auch Ihren Spam-Ordner</li>
+                    <li>Der Bestätigungslink ist 1 Stunde gültig</li>
+                    <li>Sie können diese Funktion mehrfach verwenden</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+@media (max-width: 768px) {
+    .modern-split-layout {
+        flex-direction: column;
+    }
+    
+    .split-left {
+        min-height: 40vh;
+    }
+    
+    .split-right {
+        min-height: 60vh;
+    }
+    
+    .form-title {
+        font-size: 2rem;
+    }
+}
+</style>
+{% endblock %} 

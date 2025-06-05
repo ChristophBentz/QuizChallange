@@ -1,0 +1,295 @@
+{% extends "base.html" %}
+
+{% block title %}Profil bearbeiten - Login System{% endblock %}
+
+{% block content %}
+<!-- Flash Messages -->
+{% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+        <div style="position: fixed; top: 20px; right: 20px; z-index: 9999;">
+            {% for category, message in messages %}
+                <div class="alert-modern alert-{{ 'error' if category == 'error' else ('info' if category == 'info' else 'success') }}">
+                    {{ message }}
+                </div>
+            {% endfor %}
+        </div>
+    {% endif %}
+{% endwith %}
+
+<div class="modern-split-layout">
+    <!-- Left Side - 3D Cube Animation -->
+    <div class="split-left">
+        <div class="cube-container">
+            <div class="cube">
+                <div class="cube-face front"></div>
+                <div class="cube-face back"></div>
+                <div class="cube-face right"></div>
+                <div class="cube-face left"></div>
+                <div class="cube-face top"></div>
+                <div class="cube-face bottom"></div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Right Side - Edit Profile Content -->
+    <div class="split-right">
+        <div class="form-container" style="max-width: 600px;">
+            <div style="text-align: center; margin-bottom: 2rem;">
+                <h4 style="color: #6b7280; font-weight: 600; margin-bottom: 0;">QuizChallange</h4>
+            </div>
+            
+            <div style="text-align: center; margin-bottom: 2rem;">
+                <div style="width: 80px; height: 80px; background: linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%); border-radius: 50%; display: inline-flex; align-items: center; justify-content: center; margin-bottom: 1rem;">
+                    <i class="fas fa-user-edit" style="font-size: 2rem; color: white;"></i>
+                </div>
+                <h1 class="form-title" style="margin-bottom: 0.5rem;">✏️ Profil bearbeiten</h1>
+                <p class="form-subtitle" style="margin-bottom: 0;">E-Mail-Adresse und Passwort ändern</p>
+            </div>
+            
+            <!-- Current User Info -->
+            <div style="background: #f8fafc; border-radius: 12px; padding: 1.5rem; border: 1px solid #e5e7eb; margin-bottom: 2rem;">
+                <h5 style="margin-bottom: 1rem; color: var(--text-dark); font-size: 1.125rem;">👤 Aktuelle Informationen</h5>
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+                    <span style="font-weight: 600; color: var(--text-dark);">Benutzername:</span>
+                    <span style="color: var(--text-light);">{{ user.username }}</span>
+                </div>
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+                    <span style="font-weight: 600; color: var(--text-dark);">Aktuelle E-Mail:</span>
+                    <span style="color: var(--text-light);">{{ user.email }}</span>
+                </div>
+                <div style="display: flex; justify-content: space-between; align-items: center;">
+                    <span style="font-weight: 600; color: var(--text-dark);">Profilbild:</span>
+                    <span style="color: var(--text-light);">
+                        {% if user.profile_image %}
+                            <span style="color: #10b981;">✓ Hochgeladen</span>
+                        {% else %}
+                            <span style="color: #6b7280;">Nicht vorhanden</span>
+                        {% endif %}
+                    </span>
+                </div>
+            </div>
+            
+            <!-- Profile Image Management -->
+            <div style="background: #f8fafc; border-radius: 12px; padding: 1.5rem; border: 1px solid #e5e7eb; margin-bottom: 1.5rem;">
+                <h5 style="margin-bottom: 1.5rem; color: var(--text-dark); font-size: 1.125rem;">🖼️ Profilbild verwalten</h5>
+                
+                <!-- Current Profile Image -->
+                {% if user.profile_image %}
+                <div style="text-align: center; margin-bottom: 1.5rem;">
+                    <div style="width: 120px; height: 120px; border-radius: 50%; overflow: hidden; display: inline-block; margin-bottom: 1rem; border: 3px solid #e5e7eb;">
+                        <img src="{{ url_for('static', filename='uploads/profile_images/' + user.profile_image) }}" 
+                             alt="Aktuelles Profilbild" 
+                             style="width: 100%; height: 100%; object-fit: cover;">
+                    </div>
+                    <p style="margin: 0; font-size: 0.875rem; color: var(--text-light);">Aktuelles Profilbild</p>
+                </div>
+                
+                <!-- Delete Current Image -->
+                <form method="POST" action="{{ url_for('edit_profile') }}" style="margin-bottom: 1.5rem;">
+                    <input type="hidden" name="action" value="delete_image">
+                    <button type="submit" 
+                            style="width: 100%; padding: 0.875rem 1.5rem; background: transparent; color: #dc2626; border: 2px solid #dc2626; border-radius: 8px; font-weight: 600; font-size: 1rem; cursor: pointer; transition: all 0.2s ease;"
+                            onclick="return confirm('Profilbild wirklich löschen?')">
+                        🗑️ Profilbild löschen
+                    </button>
+                </form>
+                
+                <div style="border-top: 1px solid #e5e7eb; padding-top: 1.5rem; margin-top: 1.5rem;">
+                    <p style="margin-bottom: 1rem; font-weight: 600; color: var(--text-dark);">Neues Profilbild hochladen:</p>
+                </div>
+                {% endif %}
+                
+                <!-- Upload New Image -->
+                <form method="POST" action="{{ url_for('edit_profile') }}" enctype="multipart/form-data">
+                    <input type="hidden" name="action" value="upload_image">
+                    
+                    <div style="margin-bottom: 1rem;">
+                        <label for="profile_image" style="display: block; margin-bottom: 0.5rem; font-weight: 600; color: var(--text-dark);">
+                            {% if user.profile_image %}Neues {% endif %}Profilbild auswählen
+                        </label>
+                        <input 
+                            type="file" 
+                            id="profile_image" 
+                            name="profile_image" 
+                            accept="image/*"
+                            required
+                            style="width: 100%; padding: 0.875rem 1rem; border: 2px solid #e5e7eb; border-radius: 8px; font-size: 1rem; color: var(--text-dark); background: white; transition: all 0.2s ease;"
+                            onfocus="this.style.borderColor='var(--primary-blue)'"
+                            onblur="this.style.borderColor='#e5e7eb'"
+                        >
+                    </div>
+                    
+                    <button type="submit" style="width: 100%; padding: 0.875rem 1.5rem; background: linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%); color: white; border: none; border-radius: 8px; font-weight: 600; font-size: 1rem; cursor: pointer; transition: all 0.2s ease;">
+                        {% if user.profile_image %}🔄 Profilbild ändern{% else %}📤 Profilbild hochladen{% endif %}
+                    </button>
+                </form>
+                
+                <div style="background: #dbeafe; border: 1px solid #3b82f6; border-radius: 8px; padding: 1rem; margin-top: 1rem;">
+                    <p style="margin: 0; font-size: 0.875rem; color: #1e40af;">
+                        📋 <strong>Anforderungen:</strong> PNG, JPG, JPEG, GIF oder WebP • Max. 2MB • Quadratische Bilder funktionieren am besten
+                    </p>
+                </div>
+            </div>
+            
+            <!-- Change Email Form -->
+            <div style="background: #f8fafc; border-radius: 12px; padding: 1.5rem; border: 1px solid #e5e7eb; margin-bottom: 1.5rem;">
+                <h5 style="margin-bottom: 1.5rem; color: var(--text-dark); font-size: 1.125rem;">📧 E-Mail-Adresse ändern</h5>
+                
+                <form method="POST" action="{{ url_for('edit_profile') }}">
+                    <input type="hidden" name="action" value="change_email">
+                    
+                    <div style="margin-bottom: 1rem;">
+                        <label for="new_email" style="display: block; margin-bottom: 0.5rem; font-weight: 600; color: var(--text-dark);">Neue E-Mail-Adresse</label>
+                        <input 
+                            type="email" 
+                            id="new_email" 
+                            name="new_email" 
+                            required
+                            style="width: 100%; padding: 0.875rem 1rem; border: 2px solid #e5e7eb; border-radius: 8px; font-size: 1rem; color: var(--text-dark); background: white; transition: all 0.2s ease;"
+                            placeholder="neue@email.com"
+                            onfocus="this.style.borderColor='var(--primary-blue)'; this.style.boxShadow='0 0 0 3px rgba(59, 130, 246, 0.1)'"
+                            onblur="this.style.borderColor='#e5e7eb'; this.style.boxShadow='none'"
+                        >
+                    </div>
+                    
+                    <div style="margin-bottom: 1.5rem;">
+                        <label for="current_password_email" style="display: block; margin-bottom: 0.5rem; font-weight: 600; color: var(--text-dark);">Aktuelles Passwort bestätigen</label>
+                        <input 
+                            type="password" 
+                            id="current_password_email" 
+                            name="current_password" 
+                            required
+                            style="width: 100%; padding: 0.875rem 1rem; border: 2px solid #e5e7eb; border-radius: 8px; font-size: 1rem; color: var(--text-dark); background: white; transition: all 0.2s ease;"
+                            placeholder="Aktuelles Passwort"
+                            onfocus="this.style.borderColor='var(--primary-blue)'; this.style.boxShadow='0 0 0 3px rgba(59, 130, 246, 0.1)'"
+                            onblur="this.style.borderColor='#e5e7eb'; this.style.boxShadow='none'"
+                        >
+                    </div>
+                    
+                    <button type="submit" style="width: 100%; padding: 0.875rem 1.5rem; background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%); color: white; border: none; border-radius: 8px; font-weight: 600; font-size: 1rem; cursor: pointer; transition: all 0.2s ease;">
+                        📧 E-Mail ändern
+                    </button>
+                </form>
+                
+                <div style="background: #fef3c7; border: 1px solid #f59e0b; border-radius: 8px; padding: 1rem; margin-top: 1rem;">
+                    <p style="margin: 0; font-size: 0.875rem; color: #92400e;">
+                        ⚠️ <strong>Hinweis:</strong> Nach der Änderung müssen Sie Ihre neue E-Mail-Adresse bestätigen.
+                    </p>
+                </div>
+            </div>
+            
+            <!-- Change Password Form -->
+            <div style="background: #f8fafc; border-radius: 12px; padding: 1.5rem; border: 1px solid #e5e7eb; margin-bottom: 2rem;">
+                <h5 style="margin-bottom: 1.5rem; color: var(--text-dark); font-size: 1.125rem;">🔑 Passwort ändern</h5>
+                
+                <form method="POST" action="{{ url_for('edit_profile') }}">
+                    <input type="hidden" name="action" value="change_password">
+                    
+                    <div style="margin-bottom: 1rem;">
+                        <label for="current_password_pw" style="display: block; margin-bottom: 0.5rem; font-weight: 600; color: var(--text-dark);">Aktuelles Passwort</label>
+                        <input 
+                            type="password" 
+                            id="current_password_pw" 
+                            name="current_password" 
+                            required
+                            style="width: 100%; padding: 0.875rem 1rem; border: 2px solid #e5e7eb; border-radius: 8px; font-size: 1rem; color: var(--text-dark); background: white; transition: all 0.2s ease;"
+                            placeholder="Aktuelles Passwort"
+                            onfocus="this.style.borderColor='var(--primary-blue)'; this.style.boxShadow='0 0 0 3px rgba(59, 130, 246, 0.1)'"
+                            onblur="this.style.borderColor='#e5e7eb'; this.style.boxShadow='none'"
+                        >
+                    </div>
+                    
+                    <div style="margin-bottom: 1rem;">
+                        <label for="new_password" style="display: block; margin-bottom: 0.5rem; font-weight: 600; color: var(--text-dark);">Neues Passwort</label>
+                        <input 
+                            type="password" 
+                            id="new_password" 
+                            name="new_password" 
+                            required
+                            style="width: 100%; padding: 0.875rem 1rem; border: 2px solid #e5e7eb; border-radius: 8px; font-size: 1rem; color: var(--text-dark); background: white; transition: all 0.2s ease;"
+                            placeholder="Neues Passwort (min. 6 Zeichen)"
+                            onfocus="this.style.borderColor='var(--primary-blue)'; this.style.boxShadow='0 0 0 3px rgba(59, 130, 246, 0.1)'"
+                            onblur="this.style.borderColor='#e5e7eb'; this.style.boxShadow='none'"
+                        >
+                    </div>
+                    
+                    <div style="margin-bottom: 1.5rem;">
+                        <label for="confirm_password" style="display: block; margin-bottom: 0.5rem; font-weight: 600; color: var(--text-dark);">Neues Passwort wiederholen</label>
+                        <input 
+                            type="password" 
+                            id="confirm_password" 
+                            name="confirm_password" 
+                            required
+                            style="width: 100%; padding: 0.875rem 1rem; border: 2px solid #e5e7eb; border-radius: 8px; font-size: 1rem; color: var(--text-dark); background: white; transition: all 0.2s ease;"
+                            placeholder="Neues Passwort wiederholen"
+                            onfocus="this.style.borderColor='var(--primary-blue)'; this.style.boxShadow='0 0 0 3px rgba(59, 130, 246, 0.1)'"
+                            onblur="this.style.borderColor='#e5e7eb'; this.style.boxShadow='none'"
+                        >
+                    </div>
+                    
+                    <button type="submit" style="width: 100%; padding: 0.875rem 1.5rem; background: linear-gradient(135deg, #10b981 0%, #059669 100%); color: white; border: none; border-radius: 8px; font-weight: 600; font-size: 1rem; cursor: pointer; transition: all 0.2s ease;">
+                        🔑 Passwort ändern
+                    </button>
+                </form>
+                
+                <div style="background: #dbeafe; border: 1px solid #3b82f6; border-radius: 8px; padding: 1rem; margin-top: 1rem;">
+                    <p style="margin: 0; font-size: 0.875rem; color: #1e40af;">
+                        💡 <strong>Tipp:</strong> Verwenden Sie ein starkes Passwort mit mindestens 6 Zeichen.
+                    </p>
+                </div>
+            </div>
+            
+            <!-- Navigation -->
+            <div style="display: flex; gap: 1rem; margin-bottom: 2rem;">
+                <a href="{{ url_for('profile') }}" style="flex: 1; padding: 0.875rem 1.5rem; background: transparent; color: #6b7280; border: 2px solid #e5e7eb; border-radius: 8px; font-weight: 600; font-size: 1rem; cursor: pointer; transition: all 0.2s ease; text-decoration: none; text-align: center; display: block;">
+                    ← Zurück zum Profil
+                </a>
+                <a href="{{ url_for('index') }}" style="flex: 1; padding: 0.875rem 1.5rem; background: transparent; color: var(--primary-blue); border: 2px solid var(--primary-blue); border-radius: 8px; font-weight: 600; font-size: 1rem; cursor: pointer; transition: all 0.2s ease; text-decoration: none; text-align: center; display: block;">
+                    🏠 Dashboard
+                </a>
+            </div>
+            
+            <!-- Security Info -->
+            <div style="background: linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%); border-radius: 12px; padding: 1.5rem; color: white; text-align: center;">
+                <h5 style="margin-bottom: 1rem; color: white; font-size: 1.125rem;">
+                    🛡️ Sicherheitshinweise
+                </h5>
+                <p style="margin: 0; font-size: 0.875rem; opacity: 0.9;">
+                    Alle Passwörter werden sicher verschlüsselt gespeichert. Teilen Sie Ihre Zugangsdaten niemals mit anderen.
+                    Bei E-Mail-Änderungen erhalten Sie eine Bestätigungsmail an die neue Adresse.
+                </p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+@media (max-width: 768px) {
+    .modern-split-layout {
+        flex-direction: column;
+    }
+    
+    .split-left {
+        min-height: 40vh;
+    }
+    
+    .split-right {
+        min-height: 60vh;
+    }
+    
+    .form-title {
+        font-size: 2rem;
+    }
+    
+    div[style*="display: flex"][style*="gap: 1rem"] {
+        flex-direction: column !important;
+    }
+    
+    div[style*="display: flex"][style*="justify-content: space-between"] {
+        flex-direction: column !important;
+        align-items: flex-start !important;
+        gap: 0.5rem !important;
+    }
+}
+</style>
+{% endblock %} 

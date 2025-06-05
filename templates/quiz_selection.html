@@ -1,0 +1,700 @@
+{% extends "base.html" %}
+
+{% block title %}Quiz Schwierigkeitsgrad wählen - Quiz Challenge{% endblock %}
+
+{% block content %}
+<!-- Flash Messages -->
+{% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+        <div class="flash-messages">
+            {% for category, message in messages %}
+                <div class="alert-modern alert-{{ 'error' if category == 'error' else ('info' if category == 'info' else 'success') }}">
+                    {{ message }}
+                </div>
+            {% endfor %}
+        </div>
+    {% endif %}
+{% endwith %}
+
+<!-- Fullscreen Quiz Selection Layout -->
+<div class="fullscreen-selection-container">
+    <!-- Header with Quiz Info -->
+    <div class="selection-header">
+        <div class="header-content">
+            <div class="selection-logo">
+                <i class="fas fa-brain"></i>
+            </div>
+            <div class="selection-title-section">
+                <h1 class="selection-title">🧮 Mathe-Quiz Challenge</h1>
+                <p class="selection-subtitle">Wähle deinen Schwierigkeitsgrad und starte deine Herausforderung</p>
+            </div>
+        </div>
+        <div class="header-stats">
+            <div class="stat-item">
+                <i class="fas fa-trophy"></i>
+                <span>4 Schwierigkeitsgrade</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Selection Content -->
+    <div class="selection-main-content">
+        <!-- Difficulty Cards Grid -->
+        <div class="difficulty-cards-grid">
+            <!-- Einfach -->
+            <div class="difficulty-card easy-card" data-difficulty="easy">
+                <div class="card-glow"></div>
+                <div class="card-header">
+                    <div class="difficulty-icon">
+                        <i class="fas fa-seedling"></i>
+                    </div>
+                    <h3 class="difficulty-title">Einfach</h3>
+                    <div class="difficulty-level">
+                        <div class="level-bar">
+                            <div class="level-fill easy-fill"></div>
+                        </div>
+                        <span class="level-text">Level 1</span>
+                    </div>
+                </div>
+                
+                <div class="card-body">
+                    <ul class="difficulty-features">
+                        <li><i class="fas fa-check"></i> Grundrechenarten (+, -, ×)</li>
+                        <li><i class="fas fa-check"></i> Zahlen bis 30</li>
+                        <li><i class="fas fa-check"></i> Perfekt für Einsteiger</li>
+                    </ul>
+                    <div class="example-question">
+                        <div class="example-label">Beispiel:</div>
+                        <div class="example-math">15 + 8 = ?</div>
+                    </div>
+                </div>
+                
+                <a href="{{ url_for('math_quiz_start', difficulty='easy') }}" class="btn-start btn-easy">
+                    <i class="fas fa-play"></i>
+                    <span>Einfach starten</span>
+                </a>
+            </div>
+            
+            <!-- Mittel -->
+            <div class="difficulty-card medium-card" data-difficulty="medium">
+                <div class="card-glow"></div>
+                <div class="card-header">
+                    <div class="difficulty-icon">
+                        <i class="fas fa-fire"></i>
+                    </div>
+                    <h3 class="difficulty-title">Mittel</h3>
+                    <div class="difficulty-level">
+                        <div class="level-bar">
+                            <div class="level-fill medium-fill"></div>
+                        </div>
+                        <span class="level-text">Level 2</span>
+                    </div>
+                </div>
+                
+                <div class="card-body">
+                    <ul class="difficulty-features">
+                        <li><i class="fas fa-check"></i> Größere Zahlen (bis 150)</li>
+                        <li><i class="fas fa-check"></i> Division und Potenzen</li>
+                        <li><i class="fas fa-check"></i> Für Fortgeschrittene</li>
+                    </ul>
+                    <div class="example-question">
+                        <div class="example-label">Beispiel:</div>
+                        <div class="example-math">144 ÷ 12 = ?</div>
+                    </div>
+                </div>
+                
+                <a href="{{ url_for('math_quiz_start', difficulty='medium') }}" class="btn-start btn-medium">
+                    <i class="fas fa-play"></i>
+                    <span>Mittel starten</span>
+                </a>
+            </div>
+            
+            <!-- Schwer -->
+            <div class="difficulty-card hard-card" data-difficulty="hard">
+                <div class="card-glow"></div>
+                <div class="card-header">
+                    <div class="difficulty-icon">
+                        <i class="fas fa-skull"></i>
+                    </div>
+                    <h3 class="difficulty-title">Schwer</h3>
+                    <div class="difficulty-level">
+                        <div class="level-bar">
+                            <div class="level-fill hard-fill"></div>
+                        </div>
+                        <span class="level-text">Level 3</span>
+                    </div>
+                </div>
+                
+                <div class="card-body">
+                    <ul class="difficulty-features">
+                        <li><i class="fas fa-check"></i> Komplexe Operationen</li>
+                        <li><i class="fas fa-check"></i> Prozentrechnung & Wurzeln</li>
+                        <li><i class="fas fa-check"></i> Textaufgaben</li>
+                    </ul>
+                    <div class="example-question">
+                        <div class="example-label">Beispiel:</div>
+                        <div class="example-math">25% von 240 = ?</div>
+                    </div>
+                </div>
+                
+                <a href="{{ url_for('math_quiz_start', difficulty='hard') }}" class="btn-start btn-hard">
+                    <i class="fas fa-play"></i>
+                    <span>Schwer starten</span>
+                </a>
+            </div>
+            
+            <!-- Gemischt - Featured -->
+            <div class="difficulty-card mixed-card featured" data-difficulty="mixed">
+                <div class="featured-badge">
+                    <i class="fas fa-star"></i>
+                    <span>Empfohlen</span>
+                </div>
+                <div class="card-glow"></div>
+                <div class="card-header">
+                    <div class="difficulty-icon">
+                        <i class="fas fa-random"></i>
+                    </div>
+                    <h3 class="difficulty-title">Gemischt</h3>
+                    <div class="difficulty-level">
+                        <div class="level-bar">
+                            <div class="level-fill mixed-fill"></div>
+                        </div>
+                        <span class="level-text">Alle Level</span>
+                    </div>
+                </div>
+                
+                <div class="card-body">
+                    <ul class="difficulty-features">
+                        <li><i class="fas fa-check"></i> Alle Schwierigkeitsgrade</li>
+                        <li><i class="fas fa-check"></i> Abwechslungsreich</li>
+                        <li><i class="fas fa-check"></i> Echte Herausforderung</li>
+                    </ul>
+                    <div class="example-question">
+                        <div class="example-label">Beispiel:</div>
+                        <div class="example-math">Von einfach bis schwer!</div>
+                    </div>
+                </div>
+                
+                <a href="{{ url_for('math_quiz_start', difficulty='mixed') }}" class="btn-start btn-mixed">
+                    <i class="fas fa-play"></i>
+                    <span>Gemischt starten</span>
+                </a>
+            </div>
+        </div>
+        
+        <!-- Navigation -->
+        <div class="selection-navigation">
+            <a href="{{ url_for('index') }}" class="btn-nav">
+                <i class="fas fa-home"></i>
+                <span>Zurück zum Dashboard</span>
+            </a>
+        </div>
+    </div>
+    
+    <!-- Background Decoration -->
+    <div class="selection-background">
+        <div class="floating-element element-1">🧮</div>
+        <div class="floating-element element-2">📊</div>
+        <div class="floating-element element-3">🎯</div>
+        <div class="floating-element element-4">🏆</div>
+        <div class="floating-element element-5">⚡</div>
+        <div class="floating-element element-6">💡</div>
+        <div class="floating-element element-7">🎪</div>
+        <div class="floating-element element-8">🔥</div>
+    </div>
+</div>
+
+<style>
+/* Fullscreen Selection Layout */
+.fullscreen-selection-container {
+    min-height: 100vh;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    display: flex;
+    flex-direction: column;
+    position: relative;
+    overflow: hidden;
+    will-change: scroll-position;
+}
+
+.flash-messages {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    z-index: 9999;
+}
+
+/* Selection Header */
+.selection-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 2rem 3rem;
+    background: rgba(255, 255, 255, 0.15);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.header-content {
+    display: flex;
+    align-items: center;
+    gap: 1.5rem;
+}
+
+.selection-logo {
+    width: 60px;
+    height: 60px;
+    background: rgba(255, 255, 255, 0.2);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-size: 1.5rem;
+}
+
+.selection-title-section {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.selection-title {
+    color: white;
+    font-size: 2rem;
+    font-weight: 700;
+    margin: 0;
+    text-shadow: 0 2px 4px rgba(0,0,0,0.3);
+}
+
+.selection-subtitle {
+    color: rgba(255, 255, 255, 0.9);
+    font-size: 1rem;
+    margin: 0;
+    text-shadow: 0 1px 2px rgba(0,0,0,0.3);
+}
+
+.header-stats {
+    display: flex;
+    align-items: center;
+    color: white;
+}
+
+.stat-item {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-weight: 600;
+    text-shadow: 0 1px 2px rgba(0,0,0,0.3);
+}
+
+/* Main Content */
+.selection-main-content {
+    flex: 1;
+    padding: 3rem;
+    display: flex;
+    flex-direction: column;
+    gap: 3rem;
+    position: relative;
+    z-index: 2;
+}
+
+/* Difficulty Cards Grid */
+.difficulty-cards-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 2rem;
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+.difficulty-card {
+    background: rgba(255, 255, 255, 0.95);
+    border-radius: 20px;
+    padding: 2rem;
+    box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+    position: relative;
+    overflow: hidden;
+    cursor: pointer;
+    will-change: transform;
+}
+
+.difficulty-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 12px 35px rgba(0,0,0,0.2);
+}
+
+.difficulty-card.featured {
+    border: 2px solid #fbbf24;
+    background: linear-gradient(135deg, rgba(251, 191, 36, 0.1) 0%, rgba(255, 255, 255, 0.95) 100%);
+}
+
+.card-glow {
+    position: absolute;
+    top: -50%;
+    left: -50%;
+    width: 200%;
+    height: 200%;
+    background: radial-gradient(circle, rgba(255,255,255,0.08) 0%, transparent 60%);
+    opacity: 0;
+    transition: opacity 0.2s ease;
+    will-change: opacity;
+}
+
+.difficulty-card:hover .card-glow {
+    opacity: 1;
+}
+
+.featured-badge {
+    position: absolute;
+    top: -10px;
+    right: -10px;
+    background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%);
+    color: white;
+    padding: 0.75rem 1rem;
+    border-radius: 50px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    box-shadow: 0 4px 15px rgba(251, 191, 36, 0.4);
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.card-header {
+    text-align: center;
+    margin-bottom: 2rem;
+}
+
+.difficulty-icon {
+    width: 80px;
+    height: 80px;
+    margin: 0 auto 1rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    font-size: 2rem;
+    position: relative;
+}
+
+.easy-card .difficulty-icon {
+    background: linear-gradient(135deg, #22c55e 0%, #16a34a 100%);
+    color: white;
+}
+
+.medium-card .difficulty-icon {
+    background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+    color: white;
+}
+
+.hard-card .difficulty-icon {
+    background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+    color: white;
+}
+
+.mixed-card .difficulty-icon {
+    background: linear-gradient(135deg, var(--primary-blue) 0%, #3730a3 100%);
+    color: white;
+}
+
+.difficulty-title {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: var(--text-dark);
+    margin: 0 0 1rem 0;
+}
+
+.difficulty-level {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.level-bar {
+    width: 100px;
+    height: 6px;
+    background: #e5e7eb;
+    border-radius: 3px;
+    overflow: hidden;
+}
+
+.level-fill {
+    height: 100%;
+    border-radius: 3px;
+    transition: width 0.5s ease;
+}
+
+.easy-fill {
+    width: 25%;
+    background: linear-gradient(90deg, #22c55e 0%, #16a34a 100%);
+}
+
+.medium-fill {
+    width: 50%;
+    background: linear-gradient(90deg, #f59e0b 0%, #d97706 100%);
+}
+
+.hard-fill {
+    width: 75%;
+    background: linear-gradient(90deg, #ef4444 0%, #dc2626 100%);
+}
+
+.mixed-fill {
+    width: 100%;
+    background: linear-gradient(90deg, var(--primary-blue) 0%, #3730a3 100%);
+}
+
+.level-text {
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: #6b7280;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.card-body {
+    margin-bottom: 2rem;
+}
+
+.difficulty-features {
+    list-style: none;
+    padding: 0;
+    margin: 0 0 1.5rem 0;
+}
+
+.difficulty-features li {
+    padding: 0.75rem 0;
+    font-size: 0.875rem;
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    color: var(--text-dark);
+}
+
+.difficulty-features i {
+    width: 16px;
+    color: #22c55e;
+}
+
+.example-question {
+    background: #f8fafc;
+    padding: 1.5rem;
+    border-radius: 12px;
+    border-left: 4px solid #e5e7eb;
+    text-align: center;
+}
+
+.easy-card .example-question { border-left-color: #22c55e; }
+.medium-card .example-question { border-left-color: #f59e0b; }
+.hard-card .example-question { border-left-color: #ef4444; }
+.mixed-card .example-question { border-left-color: var(--primary-blue); }
+
+.example-label {
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: #6b7280;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-bottom: 0.5rem;
+}
+
+.example-math {
+    font-size: 1.125rem;
+    font-weight: 700;
+    color: var(--text-dark);
+}
+
+/* Start Buttons */
+.btn-start {
+    width: 100%;
+    padding: 1rem 2rem;
+    border: none;
+    border-radius: 12px;
+    font-weight: 600;
+    font-size: 1rem;
+    text-decoration: none;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.75rem;
+    position: relative;
+    overflow: hidden;
+}
+
+.btn-start::before {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 0;
+    height: 0;
+    background: rgba(255, 255, 255, 0.2);
+    border-radius: 50%;
+    transition: all 0.3s ease;
+    transform: translate(-50%, -50%);
+}
+
+.btn-start:hover::before {
+    width: 200px;
+    height: 200px;
+}
+
+.btn-easy {
+    background: #22c55e;
+    color: white;
+    box-shadow: 0 3px 10px rgba(34, 197, 94, 0.3);
+}
+
+.btn-medium {
+    background: #f59e0b;
+    color: white;
+    box-shadow: 0 3px 10px rgba(245, 158, 11, 0.3);
+}
+
+.btn-hard {
+    background: #ef4444;
+    color: white;
+    box-shadow: 0 3px 10px rgba(239, 68, 68, 0.3);
+}
+
+.btn-mixed {
+    background: var(--primary-blue);
+    color: white;
+    box-shadow: 0 3px 10px rgba(79, 70, 229, 0.3);
+}
+
+.btn-start:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 5px 15px rgba(0,0,0,0.25);
+}
+
+/* Navigation */
+.selection-navigation {
+    display: flex;
+    justify-content: center;
+    padding: 2rem;
+}
+
+.btn-nav {
+    padding: 1rem 2rem;
+    background: rgba(255, 255, 255, 0.1);
+    color: white;
+    border: 2px solid rgba(255, 255, 255, 0.3);
+    border-radius: 12px;
+    font-weight: 600;
+    text-decoration: none;
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    backdrop-filter: blur(10px);
+    transition: all 0.3s ease;
+}
+
+.btn-nav:hover {
+    background: rgba(255, 255, 255, 0.2);
+    border-color: rgba(255, 255, 255, 0.5);
+    transform: translateY(-2px);
+}
+
+/* Background Animation */
+.selection-background {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    z-index: 1;
+}
+
+.floating-element {
+    position: absolute;
+    font-size: 2rem;
+    animation: floatSelection 15s ease-in-out infinite;
+    opacity: 0.08;
+    will-change: transform;
+}
+
+.element-1 { top: 15%; left: 5%; animation-delay: 0s; }
+.element-2 { top: 25%; right: 10%; animation-delay: 2s; }
+.element-3 { top: 45%; left: 10%; animation-delay: 4s; }
+.element-4 { bottom: 35%; right: 15%; animation-delay: 6s; }
+.element-5 { bottom: 15%; left: 15%; animation-delay: 8s; }
+.element-6 { top: 65%; right: 20%; animation-delay: 10s; }
+.element-7 { top: 35%; left: 85%; animation-delay: 12s; }
+.element-8 { bottom: 55%; left: 80%; animation-delay: 14s; }
+
+@keyframes floatSelection {
+    0%, 100% { transform: translate3d(0, 0, 0) rotate(0deg); opacity: 0.08; }
+    25% { transform: translate3d(0, -15px, 0) rotate(90deg); opacity: 0.12; }
+    50% { transform: translate3d(0, 8px, 0) rotate(180deg); opacity: 0.1; }
+    75% { transform: translate3d(0, -10px, 0) rotate(270deg); opacity: 0.15; }
+}
+
+/* Responsive Design */
+@media (max-width: 1024px) {
+    .difficulty-cards-grid {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 1.5rem;
+    }
+}
+
+@media (max-width: 768px) {
+    .selection-header {
+        padding: 1.5rem;
+        flex-direction: column;
+        gap: 1rem;
+    }
+    
+    .selection-main-content {
+        padding: 1.5rem;
+    }
+    
+    .difficulty-cards-grid {
+        grid-template-columns: 1fr;
+        gap: 1.5rem;
+    }
+    
+    .difficulty-card {
+        padding: 1.5rem;
+    }
+    
+    .selection-title {
+        font-size: 1.5rem;
+        text-align: center;
+    }
+    
+    .selection-subtitle {
+        text-align: center;
+    }
+}
+
+@media (max-width: 480px) {
+    .selection-header {
+        padding: 1rem;
+    }
+    
+    .selection-main-content {
+        padding: 1rem;
+    }
+    
+    .difficulty-card {
+        padding: 1.25rem;
+    }
+    
+    .difficulty-icon {
+        width: 60px;
+        height: 60px;
+        font-size: 1.5rem;
+    }
+    
+    .floating-element {
+        font-size: 2rem;
+    }
+}
+</style>
+{% endblock %} 

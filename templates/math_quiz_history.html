@@ -1,0 +1,206 @@
+{% extends "base.html" %}
+
+{% block title %}Quiz-Historie - Login System{% endblock %}
+
+{% block content %}
+<!-- Flash Messages -->
+{% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+        <div style="position: fixed; top: 20px; right: 20px; z-index: 9999;">
+            {% for category, message in messages %}
+                <div class="alert-modern alert-{{ 'error' if category == 'error' else ('info' if category == 'info' else 'success') }}">
+                    {{ message }}
+                </div>
+            {% endfor %}
+        </div>
+    {% endif %}
+{% endwith %}
+
+<div class="modern-split-layout">
+    <!-- Left Side - 3D Cube Animation -->
+    <div class="split-left">
+        <div class="cube-container">
+            <div class="cube">
+                <div class="cube-face front"></div>
+                <div class="cube-face back"></div>
+                <div class="cube-face right"></div>
+                <div class="cube-face left"></div>
+                <div class="cube-face top"></div>
+                <div class="cube-face bottom"></div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Right Side - History Content -->
+    <div class="split-right">
+        <div class="form-container" style="max-width: 700px;">
+            <div style="text-align: center; margin-bottom: 2rem;">
+                <h4 style="color: #6b7280; font-weight: 600; margin-bottom: 0;">QuizChallange</h4>
+            </div>
+            
+            <div style="text-align: center; margin-bottom: 2rem;">
+                <div style="width: 80px; height: 80px; background: linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%); border-radius: 50%; display: inline-flex; align-items: center; justify-content: center; margin-bottom: 1rem;">
+                    <i class="fas fa-chart-line" style="font-size: 2rem; color: white;"></i>
+                </div>
+                <h1 class="form-title" style="margin-bottom: 0.5rem;">📊 Quiz-Historie</h1>
+                <p class="form-subtitle" style="margin-bottom: 0;">Deine letzten 10 Mathe-Quiz Ergebnisse</p>
+            </div>
+            
+            {% if history %}
+                <!-- Statistics Overview -->
+                {% set total_quizzes = history|length %}
+                {% set total_score = history|sum(attribute='score') %}
+                {% set total_questions = history|sum(attribute='total') %}
+                {% set avg_percentage = ((total_score / total_questions) * 100) | round(1) if total_questions > 0 else 0 %}
+                
+                <div style="background: #f8fafc; border-radius: 12px; padding: 1.5rem; border: 1px solid #e5e7eb; margin-bottom: 2rem;">
+                    <h5 style="margin-bottom: 1rem; color: var(--text-dark); font-size: 1.125rem;">📈 Statistiken</h5>
+                    
+                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 1rem;">
+                        <div style="text-align: center; background: white; padding: 1rem; border-radius: 8px; border: 1px solid #e5e7eb;">
+                            <div style="font-size: 1.5rem; font-weight: 700; color: #8b5cf6; margin-bottom: 0.25rem;">{{ total_quizzes }}</div>
+                            <div style="font-size: 0.875rem; color: var(--text-light);">Gesamt Quiz</div>
+                        </div>
+                        <div style="text-align: center; background: white; padding: 1rem; border-radius: 8px; border: 1px solid #e5e7eb;">
+                            <div style="font-size: 1.5rem; font-weight: 700; color: #10b981; margin-bottom: 0.25rem;">{{ total_score }}/{{ total_questions }}</div>
+                            <div style="font-size: 0.875rem; color: var(--text-light);">Richtige Antworten</div>
+                        </div>
+                        <div style="text-align: center; background: white; padding: 1rem; border-radius: 8px; border: 1px solid #e5e7eb;">
+                            <div style="font-size: 1.5rem; font-weight: 700; color: {% if avg_percentage >= 80 %}#10b981{% elif avg_percentage >= 60 %}#f59e0b{% else %}#ef4444{% endif %}; margin-bottom: 0.25rem;">{{ avg_percentage }}%</div>
+                            <div style="font-size: 0.875rem; color: var(--text-light);">Durchschnitt</div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Quiz History List -->
+                <div style="margin-bottom: 2rem;">
+                    <h3 style="color: var(--text-dark); margin-bottom: 1rem; font-size: 1.25rem;">🏆 Alle Quiz-Ergebnisse</h3>
+                    
+                    {% for quiz in history %}
+                    <div style="background: #f8fafc; border-radius: 12px; padding: 1.5rem; border: 1px solid #e5e7eb; margin-bottom: 1rem;">
+                        <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 1rem; flex-wrap: wrap; gap: 0.5rem;">
+                            <div>
+                                <h6 style="margin: 0; color: var(--text-dark); font-size: 1.125rem; font-weight: 600;">
+                                    Quiz #{{ quiz.id }}
+                                </h6>
+                                <p style="margin: 0; color: var(--text-light); font-size: 0.875rem;">{{ quiz.date }}</p>
+                            </div>
+                            
+                            <div style="display: flex; align-items: center; gap: 0.5rem;">
+                                <div style="background: {% if quiz.percentage >= 80 %}#10b981{% elif quiz.percentage >= 60 %}#f59e0b{% else %}#ef4444{% endif %}; color: white; padding: 0.25rem 0.75rem; border-radius: 12px; font-size: 0.875rem; font-weight: 600;">
+                                    {{ quiz.percentage }}%
+                                </div>
+                                <div style="background: #8b5cf6; color: white; padding: 0.25rem 0.75rem; border-radius: 12px; font-size: 0.875rem; font-weight: 600;">
+                                    {{ quiz.score }}/{{ quiz.total }}
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Quiz Details (Expandable) -->
+                        <details style="margin-top: 1rem;">
+                            <summary style="cursor: pointer; font-weight: 600; color: var(--text-dark); padding: 0.5rem; background: white; border-radius: 6px; border: 1px solid #e5e7eb;">
+                                📝 Details anzeigen
+                            </summary>
+                            
+                            <div style="margin-top: 1rem; padding: 1rem; background: white; border-radius: 8px; border: 1px solid #e5e7eb;">
+                                {% for detail in quiz.details %}
+                                <div style="display: flex; align-items: center; justify-content: space-between; padding: 0.75rem 0; {% if not loop.last %}border-bottom: 1px solid #f3f4f6;{% endif %}">
+                                    <div style="flex: 1;">
+                                        <div style="font-weight: 600; color: var(--text-dark); margin-bottom: 0.25rem;">
+                                            {{ detail.question }}
+                                        </div>
+                                        <div style="display: flex; gap: 1rem; font-size: 0.875rem;">
+                                            <span style="color: var(--text-light);">
+                                                Deine Antwort: <strong style="color: {% if detail.is_correct %}#10b981{% else %}#ef4444{% endif %};">{{ detail.user_answer if detail.user_answer else '(leer)' }}</strong>
+                                            </span>
+                                            <span style="color: var(--text-light);">
+                                                Richtig: <strong style="color: #10b981;">{{ detail.correct_answer }}</strong>
+                                            </span>
+                                        </div>
+                                    </div>
+                                    <div style="margin-left: 1rem;">
+                                        {% if detail.is_correct %}
+                                            <div style="color: #10b981; font-weight: 600; font-size: 1.25rem;">✓</div>
+                                        {% else %}
+                                            <div style="color: #ef4444; font-weight: 600; font-size: 1.25rem;">✗</div>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                                {% endfor %}
+                            </div>
+                        </details>
+                    </div>
+                    {% endfor %}
+                </div>
+                
+            {% else %}
+                <!-- No History Message -->
+                <div style="text-align: center; background: #f8fafc; border-radius: 12px; padding: 3rem; border: 1px solid #e5e7eb; margin-bottom: 2rem;">
+                    <div style="width: 80px; height: 80px; background: #e5e7eb; border-radius: 50%; display: inline-flex; align-items: center; justify-content: center; margin-bottom: 1rem;">
+                        <i class="fas fa-chart-line" style="font-size: 2rem; color: #9ca3af;"></i>
+                    </div>
+                    <h3 style="color: var(--text-dark); margin-bottom: 0.5rem;">Noch keine Quiz-Ergebnisse</h3>
+                    <p style="color: var(--text-light); margin-bottom: 1.5rem;">Löse dein erstes Mathe-Quiz, um deine Fortschritte zu verfolgen!</p>
+                    <a href="{{ url_for('math_quiz') }}" style="display: inline-block; padding: 0.875rem 1.5rem; background: linear-gradient(135deg, #10b981 0%, #059669 100%); color: white; border: none; border-radius: 8px; font-weight: 600; font-size: 1rem; cursor: pointer; transition: all 0.2s ease; text-decoration: none;">
+                        🧮 Erstes Quiz starten
+                    </a>
+                </div>
+            {% endif %}
+            
+            <!-- Action Buttons -->
+            <div style="display: flex; gap: 1rem; margin-bottom: 2rem;">
+                <a href="{{ url_for('math_quiz') }}" style="flex: 1; padding: 0.875rem 1.5rem; background: linear-gradient(135deg, #10b981 0%, #059669 100%); color: white; border: none; border-radius: 8px; font-weight: 600; font-size: 1rem; cursor: pointer; transition: all 0.2s ease; text-decoration: none; text-align: center; display: block;">
+                    🧮 Neues Quiz
+                </a>
+                <a href="{{ url_for('index') }}" style="flex: 1; padding: 0.875rem 1.5rem; background: transparent; color: #6b7280; border: 2px solid #e5e7eb; border-radius: 8px; font-weight: 600; font-size: 1rem; cursor: pointer; transition: all 0.2s ease; text-decoration: none; text-align: center; display: block;">
+                    🏠 Dashboard
+                </a>
+            </div>
+            
+            <!-- Info Message -->
+            <div style="background: linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%); border-radius: 12px; padding: 1.5rem; color: white; text-align: center;">
+                <h5 style="margin-bottom: 1rem; color: white; font-size: 1.125rem;">
+                    💡 Tipp
+                </h5>
+                <p style="margin: 0; font-size: 0.875rem; opacity: 0.9;">
+                    Regelmäßiges Üben verbessert deine Mathematik-Fähigkeiten. Versuche täglich ein Quiz zu lösen!
+                </p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+@media (max-width: 768px) {
+    .modern-split-layout {
+        flex-direction: column;
+    }
+    
+    .split-left {
+        min-height: 40vh;
+    }
+    
+    .split-right {
+        min-height: 60vh;
+    }
+    
+    .form-title {
+        font-size: 2rem;
+    }
+    
+    div[style*="display: flex"][style*="gap: 1rem"] {
+        flex-direction: column !important;
+    }
+    
+    div[style*="display: flex"][style*="justify-content: space-between"] {
+        flex-direction: column !important;
+        align-items: flex-start !important;
+        gap: 0.5rem !important;
+    }
+    
+    div[style*="display: grid"] {
+        grid-template-columns: 1fr !important;
+    }
+}
+</style>
+{% endblock %} 

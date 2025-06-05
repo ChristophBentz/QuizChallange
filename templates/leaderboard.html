@@ -1,0 +1,560 @@
+{% extends "base.html" %}
+
+{% block title %}Leaderboard - Quiz Challenge{% endblock %}
+
+{% block content %}
+<!-- Flash Messages -->
+{% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+        <div class="flash-messages">
+            {% for category, message in messages %}
+                <div class="alert-modern alert-{{ 'error' if category == 'error' else ('info' if category == 'info' else 'success') }}">
+                    {{ message }}
+                </div>
+            {% endfor %}
+        </div>
+    {% endif %}
+{% endwith %}
+
+<!-- Fullscreen Leaderboard Layout -->
+<div class="fullscreen-leaderboard-container">
+    <!-- Header -->
+    <div class="leaderboard-header">
+        <div class="header-content">
+            <div class="leaderboard-logo">
+                <i class="fas fa-trophy"></i>
+            </div>
+            <div class="leaderboard-title-section">
+                <h1 class="leaderboard-title">🏆 Quiz Champions</h1>
+                <p class="leaderboard-subtitle">Die besten Quiz-Spieler im Ranking</p>
+            </div>
+        </div>
+        <div class="header-stats">
+            {% if user_stats %}
+            <div class="user-rank-badge">
+                <span class="rank-number">#{{ user_stats.rank }}</span>
+                <span class="rank-text">Dein Rang</span>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- Main Leaderboard Content -->
+    <div class="leaderboard-main-content">
+        <!-- Current User Stats -->
+        {% if user_stats %}
+        <div class="user-stats-card">
+            <div class="stats-header">
+                <h3>Deine Statistiken</h3>
+                <div class="rank-badge rank-{{ user_stats.rank }}">
+                    Rang #{{ user_stats.rank }}
+                </div>
+            </div>
+            <div class="stats-grid">
+                <div class="stat-item">
+                    <div class="stat-value">{{ user_stats.total_points }}</div>
+                    <div class="stat-label">Gesamtpunkte</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-value">{{ user_stats.total_quizzes }}</div>
+                    <div class="stat-label">Quiz gespielt</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-value">{{ user_stats.average_score }}</div>
+                    <div class="stat-label">Ø Score</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-value">{{ user_stats.perfect_scores }}</div>
+                    <div class="stat-label">Perfekte Scores</div>
+                </div>
+            </div>
+        </div>
+        {% endif %}
+
+        <!-- Top 10 Leaderboard -->
+        <div class="leaderboard-table-container">
+            <h3 class="table-title">Top 10 Champions</h3>
+            
+            {% if leaderboard %}
+            <div class="leaderboard-table">
+                {% for player in leaderboard %}
+                <div class="player-row {{ 'current-user' if player.is_current_user else '' }} rank-{{ player.rank }}">
+                    <div class="rank-column">
+                        <div class="rank-display">
+                            {% if player.rank == 1 %}
+                                <i class="fas fa-crown gold"></i>
+                            {% elif player.rank == 2 %}
+                                <i class="fas fa-medal silver"></i>
+                            {% elif player.rank == 3 %}
+                                <i class="fas fa-medal bronze"></i>
+                            {% else %}
+                                <span class="rank-number">#{{ player.rank }}</span>
+                            {% endif %}
+                        </div>
+                    </div>
+                    
+                    <div class="player-column">
+                        <div class="player-info">
+                            <div class="player-avatar">
+                                {% if player.profile_image %}
+                                    <img src="{{ url_for('static', filename='uploads/profile_images/' + player.profile_image) }}" 
+                                         alt="{{ player.username }}" 
+                                         class="avatar-img">
+                                {% else %}
+                                    <div class="avatar-placeholder">
+                                        <i class="fas fa-user"></i>
+                                    </div>
+                                {% endif %}
+                            </div>
+                            <div class="player-details">
+                                <div class="player-name">{{ player.username }}</div>
+                                <div class="player-stats">
+                                    {{ player.total_quizzes }} Quiz{{ 's' if player.total_quizzes != 1 else '' }} | 
+                                    Ø {{ player.average_score }}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="score-column">
+                        <div class="total-points">{{ player.total_points }}</div>
+                        <div class="points-label">Punkte</div>
+                    </div>
+                    
+                    <div class="perfect-column">
+                        <div class="perfect-scores">
+                            <i class="fas fa-star"></i>
+                            <span>{{ player.perfect_scores }}</span>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+            {% else %}
+            <div class="empty-leaderboard">
+                <i class="fas fa-chart-bar"></i>
+                <h4>Noch keine Einträge</h4>
+                <p>Spiele dein erstes Quiz, um ins Leaderboard zu kommen!</p>
+            </div>
+            {% endif %}
+        </div>
+        
+        <!-- Action Buttons -->
+        <div class="leaderboard-actions">
+            <a href="{{ url_for('math_quiz') }}" class="btn-action btn-quiz">
+                <i class="fas fa-play"></i>
+                <span>Quiz starten</span>
+            </a>
+            <a href="{{ url_for('index') }}" class="btn-action btn-dashboard">
+                <i class="fas fa-home"></i>
+                <span>Dashboard</span>
+            </a>
+            <a href="{{ url_for('math_quiz_history') }}" class="btn-action btn-history">
+                <i class="fas fa-history"></i>
+                <span>Meine Historie</span>
+            </a>
+        </div>
+    </div>
+</div>
+
+<style>
+/* Fullscreen Leaderboard Layout */
+.fullscreen-leaderboard-container {
+    min-height: 100vh;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    display: flex;
+    flex-direction: column;
+    position: relative;
+    overflow: hidden;
+}
+
+.flash-messages {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    z-index: 9999;
+}
+
+/* Header */
+.leaderboard-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 2rem 3rem;
+    background: rgba(255, 255, 255, 0.15);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.header-content {
+    display: flex;
+    align-items: center;
+    gap: 1.5rem;
+}
+
+.leaderboard-logo {
+    width: 60px;
+    height: 60px;
+    background: rgba(255, 215, 0, 0.3);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #ffd700;
+    font-size: 1.5rem;
+}
+
+.leaderboard-title {
+    color: white;
+    font-size: 2rem;
+    font-weight: 700;
+    margin: 0;
+    text-shadow: 0 2px 4px rgba(0,0,0,0.3);
+}
+
+.leaderboard-subtitle {
+    color: rgba(255, 255, 255, 0.9);
+    font-size: 1rem;
+    margin: 0;
+    text-shadow: 0 1px 2px rgba(0,0,0,0.3);
+}
+
+.user-rank-badge {
+    background: rgba(255, 255, 255, 0.2);
+    padding: 0.75rem 1.5rem;
+    border-radius: 50px;
+    color: white;
+    text-align: center;
+    backdrop-filter: blur(10px);
+}
+
+.rank-number {
+    display: block;
+    font-size: 1.5rem;
+    font-weight: 700;
+}
+
+.rank-text {
+    font-size: 0.75rem;
+    opacity: 0.9;
+}
+
+/* Main Content */
+.leaderboard-main-content {
+    flex: 1;
+    padding: 2rem 3rem;
+    display: flex;
+    flex-direction: column;
+    gap: 2rem;
+}
+
+/* User Stats Card */
+.user-stats-card {
+    background: rgba(255, 255, 255, 0.95);
+    border-radius: 20px;
+    padding: 2rem;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+    border: 1px solid rgba(255, 255, 255, 0.3);
+}
+
+.stats-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1.5rem;
+}
+
+.stats-header h3 {
+    color: var(--text-dark);
+    margin: 0;
+    font-size: 1.25rem;
+}
+
+.rank-badge {
+    padding: 0.5rem 1rem;
+    border-radius: 20px;
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: white;
+}
+
+.rank-1 { background: linear-gradient(135deg, #ffd700 0%, #ffed4e 100%); color: #1a1a1a; }
+.rank-2 { background: linear-gradient(135deg, #c0c0c0 0%, #e5e5e5 100%); color: #1a1a1a; }
+.rank-3 { background: linear-gradient(135deg, #cd7f32 0%, #daa520 100%); }
+.rank-badge:not(.rank-1):not(.rank-2):not(.rank-3) { 
+    background: linear-gradient(135deg, var(--primary-blue) 0%, #3730a3 100%); 
+}
+
+.stats-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+    gap: 1.5rem;
+}
+
+.stat-item {
+    text-align: center;
+}
+
+.stat-value {
+    font-size: 2rem;
+    font-weight: 700;
+    color: var(--text-dark);
+    margin-bottom: 0.25rem;
+}
+
+.stat-label {
+    font-size: 0.875rem;
+    color: #6b7280;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+/* Leaderboard Table */
+.leaderboard-table-container {
+    background: rgba(255, 255, 255, 0.95);
+    border-radius: 20px;
+    padding: 2rem;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    flex: 1;
+}
+
+.table-title {
+    color: var(--text-dark);
+    margin: 0 0 1.5rem 0;
+    font-size: 1.25rem;
+    text-align: center;
+}
+
+.leaderboard-table {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+}
+
+.player-row {
+    display: grid;
+    grid-template-columns: 60px 1fr 120px 80px;
+    align-items: center;
+    padding: 1rem;
+    background: #f8fafc;
+    border-radius: 12px;
+    border: 2px solid transparent;
+    transition: all 0.2s ease;
+}
+
+.player-row.current-user {
+    background: linear-gradient(135deg, rgba(79, 70, 229, 0.1) 0%, rgba(79, 70, 229, 0.05) 100%);
+    border-color: var(--primary-blue);
+}
+
+.player-row.rank-1 {
+    background: linear-gradient(135deg, rgba(255, 215, 0, 0.1) 0%, rgba(255, 215, 0, 0.05) 100%);
+    border-color: #ffd700;
+}
+
+.player-row:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+}
+
+.rank-display {
+    font-size: 1.5rem;
+    font-weight: 700;
+    text-align: center;
+}
+
+.rank-display .gold { color: #ffd700; }
+.rank-display .silver { color: #c0c0c0; }
+.rank-display .bronze { color: #cd7f32; }
+
+.player-info {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+.player-avatar {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    overflow: hidden;
+}
+
+.avatar-img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.avatar-placeholder {
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-size: 1rem;
+}
+
+.player-name {
+    font-weight: 600;
+    color: var(--text-dark);
+    font-size: 1rem;
+}
+
+.player-stats {
+    font-size: 0.75rem;
+    color: #6b7280;
+}
+
+.score-column {
+    text-align: center;
+}
+
+.total-points {
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: var(--text-dark);
+}
+
+.points-label {
+    font-size: 0.75rem;
+    color: #6b7280;
+}
+
+.perfect-column {
+    text-align: center;
+}
+
+.perfect-scores {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.25rem;
+    color: #fbbf24;
+    font-weight: 600;
+}
+
+/* Empty State */
+.empty-leaderboard {
+    text-align: center;
+    padding: 3rem;
+    color: #6b7280;
+}
+
+.empty-leaderboard i {
+    font-size: 3rem;
+    margin-bottom: 1rem;
+    opacity: 0.5;
+}
+
+.empty-leaderboard h4 {
+    margin: 0 0 0.5rem 0;
+    color: var(--text-dark);
+}
+
+/* Action Buttons */
+.leaderboard-actions {
+    display: flex;
+    justify-content: center;
+    gap: 1rem;
+    padding: 1.5rem;
+    background: rgba(255, 255, 255, 0.15);
+    border-radius: 20px;
+}
+
+.btn-action {
+    padding: 0.875rem 1.5rem;
+    border-radius: 12px;
+    font-weight: 600;
+    text-decoration: none;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    transition: all 0.2s ease;
+    color: white;
+}
+
+.btn-quiz {
+    background: #22c55e;
+}
+
+.btn-dashboard {
+    background: rgba(107, 114, 128, 0.9);
+}
+
+.btn-history {
+    background: var(--primary-blue);
+}
+
+.btn-action:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .leaderboard-header {
+        padding: 1.5rem;
+        flex-direction: column;
+        gap: 1rem;
+    }
+    
+    .leaderboard-main-content {
+        padding: 1.5rem;
+    }
+    
+    .player-row {
+        grid-template-columns: 50px 1fr 80px;
+        gap: 0.5rem;
+    }
+    
+    .perfect-column {
+        display: none;
+    }
+    
+    .stats-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+    
+    .leaderboard-actions {
+        flex-direction: column;
+    }
+    
+    .leaderboard-title {
+        font-size: 1.5rem;
+        text-align: center;
+    }
+}
+
+@media (max-width: 480px) {
+    .leaderboard-header {
+        padding: 1rem;
+    }
+    
+    .leaderboard-main-content {
+        padding: 1rem;
+    }
+    
+    .user-stats-card,
+    .leaderboard-table-container {
+        padding: 1.5rem;
+    }
+    
+    .player-row {
+        grid-template-columns: 40px 1fr 70px;
+        padding: 0.75rem;
+    }
+    
+    .player-avatar {
+        width: 32px;
+        height: 32px;
+    }
+    
+    .player-name {
+        font-size: 0.875rem;
+    }
+}
+</style>
+{% endblock %} 

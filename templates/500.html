@@ -1,0 +1,213 @@
+{% extends "base.html" %}
+
+{% block title %}Server-Fehler - Quiz Challenge{% endblock %}
+
+{% block content %}
+<div class="modern-split-layout">
+    <!-- Linke Seite mit Animation -->
+    <div class="split-left">
+        <div class="text-center text-white">
+            <div class="error-animation mb-4">
+                <!-- Großer 500 mit Animation -->
+                <div class="error-number">500</div>
+                <div class="floating-shapes">
+                    <div class="shape shape-1"></div>
+                    <div class="shape shape-2"></div>
+                    <div class="shape shape-3"></div>
+                    <div class="shape shape-4"></div>
+                </div>
+            </div>
+            <h2 class="mb-3">Ups! Etwas ist schiefgelaufen</h2>
+            <p class="lead opacity-75">Ein unerwarteter Server-Fehler ist aufgetreten. Wir arbeiten bereits daran!</p>
+        </div>
+    </div>
+    
+    <!-- Rechte Seite mit Optionen -->
+    <div class="split-right">
+        <div class="form-container text-center">
+            <div class="mb-4">
+                <i class="fas fa-tools fa-4x text-warning mb-3"></i>
+                <h3 class="form-title">Server-Problem</h3>
+                <p class="form-subtitle">Keine Sorge, das passiert manchmal. Versuchen Sie es einfach erneut!</p>
+            </div>
+            
+            <div class="d-grid gap-3">
+                <button onclick="location.reload()" class="btn btn-primary-modern">
+                    <i class="fas fa-redo me-2"></i>
+                    Seite neu laden
+                </button>
+                
+                <a href="{{ url_for('index') }}" class="btn btn-outline-primary">
+                    <i class="fas fa-home me-2"></i>
+                    Zur Startseite
+                </a>
+                
+                {% if session.user_id %}
+                <a href="{{ url_for('math_quiz') }}" class="btn btn-outline-secondary">
+                    <i class="fas fa-brain me-2"></i>
+                    Neues Quiz starten
+                </a>
+                {% else %}
+                <a href="{{ url_for('login') }}" class="btn btn-outline-secondary">
+                    <i class="fas fa-sign-in-alt me-2"></i>
+                    Anmelden
+                </a>
+                {% endif %}
+                
+                <button onclick="history.back()" class="btn btn-outline-dark">
+                    <i class="fas fa-arrow-left me-2"></i>
+                    Zurück
+                </button>
+            </div>
+            
+            <div class="mt-4 pt-4 border-top">
+                <div class="alert alert-info">
+                    <i class="fas fa-info-circle me-2"></i>
+                    <strong>Tipp:</strong> Falls das Problem weiterhin besteht, versuchen Sie es in ein paar Minuten erneut.
+                </div>
+                
+                <p class="text-muted small">
+                    Fehler-Code: {{ error_code if error_code else '500' }}
+                </p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .error-number {
+        font-size: 8rem;
+        font-weight: 900;
+        line-height: 1;
+        text-shadow: 0 0 30px rgba(255,255,255,0.3);
+        animation: shake 1s ease-in-out infinite alternate;
+    }
+    
+    @keyframes shake {
+        0% { transform: translateX(0); }
+        25% { transform: translateX(-2px); }
+        50% { transform: translateX(2px); }
+        75% { transform: translateX(-1px); }
+        100% { transform: translateX(1px); }
+    }
+    
+    .floating-shapes {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        width: 300px;
+        height: 300px;
+        pointer-events: none;
+    }
+    
+    .shape {
+        position: absolute;
+        border-radius: 50%;
+        opacity: 0.1;
+        animation: float 6s ease-in-out infinite;
+    }
+    
+    .shape-1 {
+        width: 60px;
+        height: 60px;
+        background: #ff6b6b;
+        top: 20%;
+        left: 10%;
+        animation-delay: 0s;
+    }
+    
+    .shape-2 {
+        width: 80px;
+        height: 80px;
+        background: #74b9ff;
+        top: 60%;
+        right: 20%;
+        animation-delay: 1s;
+    }
+    
+    .shape-3 {
+        width: 40px;
+        height: 40px;
+        background: #55efc4;
+        bottom: 20%;
+        left: 30%;
+        animation-delay: 2s;
+    }
+    
+    .shape-4 {
+        width: 70px;
+        height: 70px;
+        background: #fdcb6e;
+        top: 10%;
+        right: 10%;
+        animation-delay: 3s;
+    }
+    
+    @keyframes float {
+        0%, 100% { transform: translateY(0px) rotate(0deg); }
+        33% { transform: translateY(-20px) rotate(120deg); }
+        66% { transform: translateY(10px) rotate(240deg); }
+    }
+    
+    .btn-outline-primary {
+        border: 2px solid var(--primary-blue);
+        color: var(--primary-blue);
+        background: transparent;
+        padding: 0.75rem 1.5rem;
+        border-radius: 8px;
+        font-weight: 600;
+        transition: all 0.2s ease;
+    }
+    
+    .btn-outline-primary:hover {
+        background: var(--primary-blue);
+        color: white;
+        transform: translateY(-1px);
+        box-shadow: 0 4px 12px rgba(79, 70, 229, 0.3);
+    }
+    
+    .btn-outline-secondary {
+        border: 2px solid #6b7280;
+        color: #6b7280;
+        background: transparent;
+        padding: 0.75rem 1.5rem;
+        border-radius: 8px;
+        font-weight: 600;
+        transition: all 0.2s ease;
+    }
+    
+    .btn-outline-secondary:hover {
+        background: #6b7280;
+        color: white;
+        transform: translateY(-1px);
+        box-shadow: 0 4px 12px rgba(107, 114, 128, 0.3);
+    }
+    
+    .btn-outline-dark {
+        border: 2px solid #374151;
+        color: #374151;
+        background: transparent;
+        padding: 0.75rem 1.5rem;
+        border-radius: 8px;
+        font-weight: 600;
+        transition: all 0.2s ease;
+    }
+    
+    .btn-outline-dark:hover {
+        background: #374151;
+        color: white;
+        transform: translateY(-1px);
+        box-shadow: 0 4px 12px rgba(55, 65, 81, 0.3);
+    }
+    
+    .alert-info {
+        background: #dbeafe;
+        color: #1e40af;
+        border: 1px solid #bfdbfe;
+        border-radius: 8px;
+        padding: 1rem;
+        font-size: 0.875rem;
+    }
+</style>
+{% endblock %} 
